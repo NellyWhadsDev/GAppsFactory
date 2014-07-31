@@ -1,0 +1,136 @@
+#GAppsFactory Custom GApps Install Script
+
+ui_print("Mounting system...");
+package_extract_file("utils/mount", "/tmp/mount");
+set_perm(0, 0, 0755, "/tmp/mount");
+ui_print("Mounting Partitions");
+run_program("/tmp/mount", "/system");
+run_program("/tmp/mount", "/data");
+run_program("/tmp/mount", "/cache");
+
+package_extract_file("GAppsFactory.prop", "/tmp/GAppsFactory.prop");
+
+# Removing the stock/AOSP Keyboard
+ifelse(
+    file_getprop("/tmp/GAppsFactory.prop","kb.replace") == "true",
+    (
+        ui_print("Removing Stock/AOSP Keyboard...");
+        ui_print(" ");
+        delete(
+            "/system/app/LatinIME.apk",
+            "/system/lib/libjni_latinime.so"
+        );
+    )
+);
+
+# Removing the stock/AOSP Launcher
+ifelse(
+    file_getprop("/tmp/GAppsFactory.prop","home.replace") == "true",
+    (
+        ui_print("Removing Stock/AOSP Launcher...");
+        ui_print(" ");
+        delete(
+            "/system/priv-app/Launcher2.apk",
+            "/system/priv-app/Launcher3.apk",
+            "/system/priv-app/Trebuchet.apk",
+            "/system/app/Launcher2.apk",
+            "/system/app/Launcher3.apk",
+            "/system/app/Trebuchet.apk"
+        );
+    )
+);
+
+# Removing the stock/AOSP Calendar
+ifelse(
+    file_getprop("/tmp/GAppsFactory.prop","cal.replace") == "true",
+    (
+        ui_print("Removing Stock/AOSP Calendar App...");
+        ui_print(" ");
+        delete("/system/app/Calendar.apk");
+    )
+);
+
+# Removing the stock/AOSP Camera
+ifelse(
+    file_getprop("/tmp/GAppsFactory.prop","cam.replace") == "true",
+    (
+        ui_print("Removing Stock/AOSP Camera...");
+        ui_print(" ");
+        delete(
+            "/system/priv-app/Camera2.apk",
+            "/system/app/Camera2.apk"
+        );
+    )
+);
+
+# Removing the stock/AOSP Gallery
+ifelse(
+    file_getprop("/tmp/GAppsFactory.prop","gal.replace") == "true",
+    (
+        ui_print("Removing Stock/AOSP Gallery...");
+        ui_print(" ");
+        delete(
+            "/system/priv-app/Gallery2.apk",
+            "/system/app/Gallery2.apk",
+            "/system/priv-app/Gallery.apk",
+            "/system/app/Gallery.apk"
+        );
+    )
+);
+
+# Removing the stock/AOSP TTS
+ifelse(
+    file_getprop("/tmp/GAppsFactory.prop","tts.replace") == "true",
+    (
+        ui_print("Removing Stock/AOSP MMS App...");
+        ui_print(" ");
+        delete("/system/app/PicoTts.apk");
+    )
+);
+
+# Removing the stock/AOSP SMS
+ifelse(
+    file_getprop("/tmp/GAppsFactory.prop","sms.replace") == "true",
+    (
+        ui_print("Removing Stock/AOSP MMS App...");
+        ui_print(" ");
+        delete("/system/priv-app/Mms.apk");
+    )
+);
+
+# Removing the stock/AOSP Email
+ifelse(
+    file_getprop("/tmp/GAppsFactory.prop","email.replace") == "true",
+    (
+        ui_print("Removing Stock/AOSP Email App...");
+        ui_print(" ");
+        delete("/system/app/Email.apk");
+    )
+);
+
+delete("/system/app/BrowserProviderProxy.apk","/system/app/PartnerBookmarksProvider.apk","/system/app/Vending.apk");
+delete("/system/priv-app/BrowserProviderProxy.apk","/system/priv-app/PartnerBookmarksProvider.apk","/system/priv-app/Vending.apk");
+
+ui_print("Copying files...");
+package_extract_dir("system", "/system");
+
+ui_print("Fixing Permissions...");
+set_perm(0, 0, 0755, "/system/addon.d/70-gapps.sh");
+set_perm_recursive(0, 0, 0755, 0644, "/system/app");
+set_perm_recursive(0, 0, 0777, 0777, "/system/etc/init.d");
+set_perm_recursive(0, 0, 0755, 0644, "/system/priv-app");
+
+package_extract_file("utils/sql", "/tmp/sql");
+set_perm(0, 0, 0777, "/tmp/sql");
+ui_print("Optimizing Caches... This can take upto 2 mins");
+run_program("/tmp/sql");
+
+ui_print("Unmounting system...");
+run_program("/sbin/busybox", "umount", "/system");
+
+ui_print("Wiping cache and dalvik-cache");
+delete_recursive("/cache");
+delete_recursive("/data/dalvik-cache");
+
+show_progress(1, 1);
+ui_print("Installation complete!");
