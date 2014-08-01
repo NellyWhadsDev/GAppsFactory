@@ -2,7 +2,6 @@
 
 //Includes
 include"checkinput.php";
-include"timer.php";
 include"zipgapps.php";
 include"generatescripts.php";
 include"signgapps.php";
@@ -14,7 +13,7 @@ $gappspath = "D:/xampp/htdocs/gappsfactory/7GApps";
 $respath = "D:/xampp/htdocs/gappsfactory/Resources";
 
 //execution time (start)
-starttimer(); 
+$starttime	= microtime(true);
 
 //GApps list array
 $postgapps = $_POST["gapps2zip"];
@@ -39,5 +38,7 @@ header('Content-Type: application/zip');
 //unlink($gappsfile); TODO
 
 //execution time (end)
-endtimer($respath.'/Log.txt', $gappsfile.' Generation Time:');
+	$endtime = microtime(true);
+	$executiontime = ($endtime - $starttime);
+	file_put_contents($respath.'/Log.txt', $gappsfile.' Generation Time: '.$executiontime.' Seconds'.PHP_EOL, FILE_APPEND);
 ?>
