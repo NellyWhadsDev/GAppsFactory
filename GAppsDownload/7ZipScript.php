@@ -7,10 +7,10 @@ include"generatescripts.php";
 include"signgapps.php";
 
 //Path for GApps
-$gappspath = "D:/xampp/htdocs/gappsfactory/7GApps";
+$gappspath = "../files";
 
 //Path for Resources
-$respath = "D:/xampp/htdocs/gappsfactory/Resources";
+$respath = "./Resources";
 
 //execution time (start)
 $starttime	= microtime(true);
